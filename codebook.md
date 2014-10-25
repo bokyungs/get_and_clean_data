@@ -1,14 +1,14 @@
-### Setup - 561 measurements involving 30 volunteers engaged in 
+### Setup - 561 measurements involving 30 volunteers engaged in
 ### six different activities wearing their smart Phone on their waist.
-### accelerometer and gyroscope signals were captured on 3-axis.
-### Each variable starting from column 3 contains the average of each measurement
-### for a given activity and given subject.
-### For a variable name, a camel case was used because using all low case
+### Accelerometer and gyroscope signals were captured on 3-axis.
+### Each variable starting from column 3 contains the average of each
+### measurement for a given activity and given subject.
+### For a variable name, a Camel case was used because using all low case
 ### for a long variable name makes it very difficult to read it.
 ### Moroever, in Java programs, using a Camel case is a standard.
 
 
-X, Y, Z represents 3 different axis.
+X, Y, Z represent 3 different axis.
 
 Accelerometer and Gyroscope indicates the source of the signal.
 
