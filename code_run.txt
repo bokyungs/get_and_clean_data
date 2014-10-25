@@ -1,0 +1,369 @@
+## This contains the steps taken to process the training and test datasets
+## to extract the mean and standard deviation from the activity files
+
+library(dplyr) - This package will be used to group by two variables and compute the mean for each group.
+
+This assumes that the data files are located in the same directory as where the R script is run.
+
+First, do what's applicable to both the training and test set:
+1. Read in the activity ID and activity names. 
+2. Read in the column numbers and their variable names from a file.  I put the info in a file so that we can edit the input file if we decide to add more data 
+in the future.  I went through the "features.txt" file and identified the column number of the mean
+and standard deviation we are interested in.  I assigned the variable names in a Camel case because 
+in software engineering, using all lower case for a long variable name is a big NO NO.
+
+
+1. Read in the activity ids and names.
+Set stringsAsFactors so that activity names are not read in as a factor.
+activity_id_names <- read.table("./UCI_HAR_Dataset/activity_labels.txt", stringsAsFactors=FALSE) 
+
+str(activity_id_names)
+'data.frame':	6 obs. of  2 variables:
+ $ V1: int  1 2 3 4 5 6
+ $ V2: chr  "WALKING" "WALKING_UPSTAIRS" "WALKING_DOWNSTAIRS" "SITTING" ...
+
+There are 6 rows and each activity id (1-6) is associated with an activity name
+ 
+head(activity_id_names)
+  V1                 V2
+1  1            WALKING
+2  2   WALKING_UPSTAIRS
+3  3 WALKING_DOWNSTAIRS
+4  4            SITTING
+5  5           STANDING
+6  6             LAYING
+
+2. Read in the file that contains the columns we are interested in and their names
+data <- read.table("./UCI_HAR_Dataset/variable_col_names.txt", stringsAsFactors=FALSE)  I do not want the variable names to be read in as factors.  Instead, read in the variable names as characters
+
+Once the input file is read, this is what the data frame looks like:
+
+head(data)
+  V1                                   V2
+1  1              tBodyAccelerometerMeanX
+2  2              tBodyAccelerometerMeanY
+3  3              tBodyAccelerometerMeanZ
+4  4 tBodyAccelerometerStandardDeviationX
+5  5 tBodyAccelerometerStandardDeviationY
+6  6 tBodyAccelerometerStandardDeviationZ
+
+3. Separate the column numbers of the variables we are interested in
+columnNums <- c(data$V1)
+
+This is what the columnNums looks like
+head(columnNums)
+[1] 1 2 3 4 5 6
+
+There are 66 variables we are interested in:
+str(columnNums)
+ int [1:66] 1 2 3 4 5 6 41 42 43 44 ...
+
+4. Extract the variable names we are going to assign to the desired columns
+
+columnLabels <- c(data$V2)
+
+str(columnLabels)
+ chr [1:66] "tBodyAccelerometerMeanX" "tBodyAccelerometerMeanY" "tBodyAccelerometerMeanZ" ...
+head(columnLabels)
+[1] "tBodyAccelerometerMeanX"              "tBodyAccelerometerMeanY"              "tBodyAccelerometerMeanZ"             
+[4] "tBodyAccelerometerStandardDeviationX" "tBodyAccelerometerStandardDeviationY" "tBodyAccelerometerStandardDeviationZ"
+
+The following are the steps taken to process the training set.  There are 11 steps taken.
+Each step starts with the prefix "Train".
+
+Train_1.  Read in the activity data from the training set
+data <- read.table("./UCI_HAR_Dataset/train/X_train.txt")
+
+Once the activity data from the training set is read in, this is what the data frame looks like:
+str(data)
+'data.frame':	7352 obs. of  561 variables:
+ $ V1  : num  0.289 0.278 0.28 0.279 0.277 ...
+ $ V2  : num  -0.0203 -0.0164 -0.0195 -0.0262 -0.0166 ...
+ $ V3  : num  -0.133 -0.124 -0.113 -0.123 -0.115 ...
+ $ V4  : num  -0.995 -0.998 -0.995 -0.996 -0.998 ...
+ $ V5  : num  -0.983 -0.975 -0.967 -0.983 -0.981 ...
+ $ V6  : num  -0.914 -0.96 -0.979 -0.991 -0.99 ...
+
+Train_2. The training set has the 561 variables.  We are interested in only the 
+means and standard deviations, select the 66 variables we are interested in
+and store it into "activity_data_train".
+
+activity_data_train <- data[, columnNums]
+
+str(activity_data_train)
+'data.frame':	7352 obs. of  66 variables:
+ $ V1  : num  0.289 0.278 0.28 0.279 0.277 ...
+ $ V2  : num  -0.0203 -0.0164 -0.0195 -0.0262 -0.0166 ...
+ $ V3  : num  -0.133 -0.124 -0.113 -0.123 -0.115 ...
+ $ V4  : num  -0.995 -0.998 -0.995 -0.996 -0.998 ...
+ $ V5  : num  -0.983 -0.975 -0.967 -0.983 -0.981 ...
+ $ V6  : num  -0.914 -0.96 -0.979 -0.991 -0.99 ..
+
+Note that we now have 66 variables instead of 561 and the variable names haven't been assigned yet.  They are assigned the default
+names of "v1", "V2", "V3", etc.
+
+Train_3. Assign the variable names that we read in to the column headings
+colnames(activity_data_train) <- columnNames
+str(activity_data_train)
+'data.frame':	7352 obs. of  66 variables:
+ $ tBodyAccelerometerMeanX                 : num  0.289 0.278 0.28 0.279 0.277 ...
+ $ tBodyAccelerometerMeanY                 : num  -0.0203 -0.0164 -0.0195 -0.0262 -0.0166 ...
+ $ tBodyAccelerometerMeanZ                 : num  -0.133 -0.124 -0.113 -0.123 -0.115 ...
+ $ tBodyAccelerometerStandardDeviationX    : num  -0.995 -0.998 -0.995 -0.996 -0.998 ...
+ $ tBodyAccelerometerStandardDeviationY    : num  -0.983 -0.975 -0.967 -0.983 -0.981 ...
+ $ tBodyAccelerometerStandardDeviationZ    : num  -0.914 -0.96 -0.979 -0.991 -0.99 ...
+
+We have the same number of observations and variables but the variable names have been
+replaced with the ones from the input file.
+
+Train_4. Read in the subject info for the training set
+subject_ID <- read.table("./UCI_HAR_Dataset/train/subject_train.txt")
+
+Each row identifies the subject who performed the activity for each activity specified in the activity_ID
+str(subject_ID)
+'data.frame':	7352 obs. of  1 variable:
+ $ V1: int  1 1 1 1 1 1 1 1 1 1 ...
+> unique(subject_ID)
+     V1
+1     1
+348   3
+689   5
+991   6
+1316  7
+1624  8
+1905 11
+2221 14
+2544 15
+2872 16
+3238 17
+3606 19
+3966 21
+4374 22
+4695 23
+5067 25
+5476 26
+5868 27
+6244 28
+6626 29
+6970 30
+
+
+Train_5. Add the subject_ID to our data frame
+activity_data_train <- cbind(subject_ID, activity_data_train)
+ str(activity_data_train)
+'data.frame':	7352 obs. of  67 variables:
+ $ V1                                      : int  1 1 1 1 1 1 1 1 1 1 ...
+ $ tBodyAccelerometerMeanX                 : num  0.289 0.278 0.28 0.279 0.277 ...
+ $ tBodyAccelerometerMeanY                 : num  -0.0203 -0.0164 -0.0195 -0.0262 -0.0166 ...
+ $ tBodyAccelerometerMeanZ                 : num  -0.133 -0.124 -0.113 -0.123 -0.115 ...
+ $ tBodyAccelerometerStandardDeviationX    : num  -0.995 -0.998 -0.995 -0.996 -0.998 ...
+ $ tBodyAccelerometerStandardDeviationY    : num  -0.983 -0.975 -0.967 -0.983 -0.981 ...
+ $ tBodyAccelerometerStandardDeviationZ    : num  -0.914 -0.96 -0.979 -0.991 -0.99 ...
+
+We have the subject_ID added as a first column with a heading of "V1".
+
+Train_6. Change the name of the first variable(column) to "subjectID" 
+colnames(activity_data_train)[1] <- "subjectID"
+
+str(activity_data_train)
+'data.frame':	7352 obs. of  67 variables:
+ $ subjectID                               : int  1 1 1 1 1 1 1 1 1 1 ...
+ $ tBodyAccelerometerMeanX                 : num  0.289 0.278 0.28 0.279 0.277 ...
+ $ tBodyAccelerometerMeanY                 : num  -0.0203 -0.0164 -0.0195 -0.0262 -0.0166 ...
+ $ tBodyAccelerometerMeanZ                 : num  -0.133 -0.124 -0.113 -0.123 -0.115 ...
+ $ tBodyAccelerometerStandardDeviationX    : num  -0.995 -0.998 -0.995 -0.996 -0.998 ...
+ $ tBodyAccelerometerStandardDeviationY    : num  -0.983 -0.975 -0.967 -0.983 -0.981 ...
+ $ tBodyAccelerometerStandardDeviationZ    : num  -0.914 -0.96 -0.979 -0.991 -0.99 ...
+
+The number of variables is the same but the column name, V1, is changed to "subjectID".
+
+Train_7. Read in the activity ID for the training set. 
+activity_ID <- read.table("./UCI_HAR_Dataset/train/y_train.txt")
+str(activity_ID)
+'data.frame':	7352 obs. of  1 variable:
+ $ V1: int  5 5 5 5 5 5 5 5 5 5 ...
+> unique(activity_ID)
+    V1
+1    5
+28   4
+52   6
+79   1
+126  3
+151  2
+
+Activity_ID contains the IDs of  all the activities associated with the 7,352 observations.
+There are six activity IDs: 1 - 6.
+7,352 observations of 1 variable
+
+
+Train_8. Add the activity ID to the activity_data_train as a new column.
+activity_data_train <- cbind(activity_ID, activity_data_train)
+After this,we should have another column added: 68.
+
+str(activity_data_train)
+'data.frame':	7352 obs. of  68 variables:
+ $ V1                                      : int  5 5 5 5 5 5 5 5 5 5 ...
+ $ subjectID                               : int  1 1 1 1 1 1 1 1 1 1 ...
+ $ tBodyAccelerometerMeanX                 : num  0.289 0.278 0.28 0.279 0.277 ...
+ $ tBodyAccelerometerMeanY                 : num  -0.0203 -0.0164 -0.0195 -0.0262 -0.0166 ...
+ $ tBodyAccelerometerMeanZ                 : num  -0.133 -0.124 -0.113 -0.123 -0.115 ...
+ $ tBodyAccelerometerStandardDeviationX    : num  -0.995 -0.998 -0.995 -0.996 -0.998 ...
+ $ tBodyAccelerometerStandardDeviationY    : num  -0.983 -0.975 -0.967 -0.983 -0.981 ...
+ $ tBodyAccelerometerStandardDeviationZ    : num  -0.914 -0.96 -0.979 -0.991 -0.99 ...
+
+
+Train_9. Merge this data frame with activity_id_names.  The common key is the activity ID that's in the 
+first column of both data frames.  Since they are both in the column with the heading "V1", we don't have to 
+specify the column to use for merging.
+
+temp <- merge(activity_id_names, activity_data_train)
+str(temp)
+'data.frame':	7352 obs. of  69 variables:
+ $ V1                                      : int  1 1 1 1 1 1 1 1 1 1 ...
+ $ V2                                      : chr  "WALKING" "WALKING" "WALKING" "WALKING" ...
+ $ subjectID                               : int  6 6 6 6 6 6 6 6 6 6 ...
+ $ tBodyAccelerometerMeanX                 : num  0.298 0.337 0.218 0.258 0.379 ...
+ $ tBodyAccelerometerMeanY                 : num  -0.0163 -0.0393 -0.0122 0.0182 -0.0226 ...
+ $ tBodyAccelerometerMeanZ                 : num  -0.1185 -0.1267 -0.1002 -0.0726 -0.1002 ...
+ $ tBodyAccelerometerStandardDeviationX    : num  -0.325 -0.272 -0.253 -0.217 -0.182 ...
+ $ tBodyAccelerometerStandardDeviationY    : num  0.115 0.18 0.131 0.143 0.176 ...
+ $ tBodyAccelerometerStandardDeviationZ    : num  -0.593 -0.59 -0.584 -0.56 -0.538 ...
+The first two columns are the activity ID and activity names.
+Note that merge rearranages the data
+It's sorted by the activity IDs.  This is the reason why we couldn't do the merge of the activity ID with activity names
+before adding the subject IDs.
+
+Train_10. Remove the first column that's activity id
+activity_data_train <- temp[-1]
+
+ str(activity_data_train)
+'data.frame':	7352 obs. of  68 variables:
+ $ V2                                      : chr  "WALKING" "WALKING" "WALKING" "WALKING" ...
+ $ subjectID                               : int  6 6 6 6 6 6 6 6 6 6 ...
+ $ tBodyAccelerometerMeanX                 : num  0.298 0.337 0.218 0.258 0.379 ...
+ $ tBodyAccelerometerMeanY                 : num  -0.0163 -0.0393 -0.0122 0.0182 -0.0226 ...
+ $ tBodyAccelerometerMeanZ                 : num  -0.1185 -0.1267 -0.1002 -0.0726 -0.1002 ...
+ $ tBodyAccelerometerStandardDeviationX    : num  -0.325 -0.272 -0.253 -0.217 -0.182 ...
+ $ tBodyAccelerometerStandardDeviationY    : num  0.115 0.18 0.131 0.143 0.176 ...
+ $ tBodyAccelerometerStandardDeviationZ    : num  -0.593 -0.59 -0.584 -0.56 -0.538 ...
+
+Train_11. Change the column name from V2 to activityName
+colnames(activity_data_train)[1] <- "activityName"
+str(activity_data_train)
+'data.frame':	7352 obs. of  68 variables:
+ $ activityName                            : chr  "WALKING" "WALKING" "WALKING" "WALKING" ...
+ $ subjectID                               : int  6 6 6 6 6 6 6 6 6 6 ...
+ $ tBodyAccelerometerMeanX                 : num  0.298 0.337 0.218 0.258 0.379 ...
+ $ tBodyAccelerometerMeanY                 : num  -0.0163 -0.0393 -0.0122 0.0182 -0.0226 ...
+ $ tBodyAccelerometerMeanZ                 : num  -0.1185 -0.1267 -0.1002 -0.0726 -0.1002 ...
+ $ tBodyAccelerometerStandardDeviationX    : num  -0.325 -0.272 -0.253 -0.217 -0.182 ...
+ $ tBodyAccelerometerStandardDeviationY    : num  0.115 0.18 0.131 0.143 0.176 ...
+ $ tBodyAccelerometerStandardDeviationZ    : num  -0.593 -0.59 -0.584 -0.56 -0.538 ...
+
+At this point, we are done with processing the training set data.
+We need to do the same with the test set.
+If I had more time, I'd made this into a function so that I don't need to repeat the same thing with the test set,
+but due to the lack of time, I will repeat the same with the test set.
+
+Now, we need to repeat the same steps with the test set.
+Test_1. Read in the activity data from the test set
+data <- read.table("./UCI_HAR_Dataset/test/X_test.txt")
+
+ str(data)
+'data.frame':	2947 obs. of  561 variables:
+ $ V1  : num  0.257 0.286 0.275 0.27 0.275 ...
+ $ V2  : num  -0.0233 -0.0132 -0.0261 -0.0326 -0.0278 ...
+ $ V3  : num  -0.0147 -0.1191 -0.1182 -0.1175 -0.1295 ...
+ $ V4  : num  -0.938 -0.975 -0.994 -0.995 -0.994 ...
+ $ V5  : num  -0.92 -0.967 -0.97 -0.973 -0.967 ...
+ $ V6  : num  -0.668 -0.945 -0.963 -0.967 -0.978 ...
+
+Test_2. Select the 66 columns of means and STDs
+
+activity_data_test <- data[, columnNums]
+str(activity_data_test) - 7,352 observations and 62 variables
+str(activity_data_test)
+'data.frame':	2947 obs. of  66 variables:
+ $ V1  : num  0.257 0.286 0.275 0.27 0.275 ...
+ $ V2  : num  -0.0233 -0.0132 -0.0261 -0.0326 -0.0278 ...
+ $ V3  : num  -0.0147 -0.1191 -0.1182 -0.1175 -0.1295 ...
+ $ V4  : num  -0.938 -0.975 -0.994 -0.995 -0.994 ...
+ $ V5  : num  -0.92 -0.967 -0.97 -0.973 -0.967 ...
+ $ V6  : num  -0.668 -0.945 -0.963 -0.967 -0.978 ...
+
+Test_3. Assign the variable names that we read in to the column headings
+colnames(activity_data_test) <- columnNames
+str(activity_data_test)
+'data.frame':	2947 obs. of  66 variables:
+ $ tBodyAccelerometerMeanX                 : num  0.257 0.286 0.275 0.27 0.275 ...
+ $ tBodyAccelerometerMeanY                 : num  -0.0233 -0.0132 -0.0261 -0.0326 -0.0278 ...
+ $ tBodyAccelerometerMeanZ                 : num  -0.0147 -0.1191 -0.1182 -0.1175 -0.1295 ...
+ $ tBodyAccelerometerStandardDeviationX    : num  -0.938 -0.975 -0.994 -0.995 -0.994 ...
+ $ tBodyAccelerometerStandardDeviationY    : num  -0.92 -0.967 -0.97 -0.973 -0.967 ...
+ $ tBodyAccelerometerStandardDeviationZ    : num  -0.668 -0.945 -0.963 -0.967 -0.978 ...
+
+Test_4. Read in the subject info for the test set
+subject_ID <- read.table("./UCI_HAR_Dataset/test/subject_test.txt")
+str(subject_ID)
+'data.frame':	2947 obs. of  1 variable:
+ $ V1: int  2 2 2 2 2 2 2 2 2 2 ...
+> unique(subject_ID)
+     V1
+1     2
+303   4
+620   9
+908  10
+1202 12
+1522 13
+1849 18
+2213 20
+2567 24
+
+There are only 24 subjects.
+
+Test_5. Add the subject_ID to our data frame
+activity_data_test <- cbind(subject_ID, activity_data_test)
+str(activity_data_test)
+'data.frame':	2947 obs. of  67 variables:
+ $ V1                                      : int  2 2 2 2 2 2 2 2 2 2 ...
+
+
+Test_6. Change the name of the first variable(column) to "subjectID" 
+colnames(activity_data_test)[1] <- "subjectID"
+
+
+Test_7.Read in the activity ID for the test set
+activity_ID <- read.table("./UCI_HAR_Dataset/test/y_test.txt")
+str(activity_ID)
+'data.frame':	2947 obs. of  1 variable:
+ $ V1: int  5 5 5 5 5 5 5 5 5 5 ...
+
+Test_8. Add the activity ID to the activity_data_test as a new column.
+activity_data_test <- cbind(activity_ID, activity_data_test)
+str(activity_data_test)
+'data.frame':	2947 obs. of  68 variables:
+ $ V1                                      : int  5 5 5 5 5 5 5 5 5 5 ...
+ $ subjectID                               : int  2 2 2 2 2 2 2 2 2 2 ...
+
+Test_9.Merge this data frame with activity_id_names.  The common key is the activity ID that's in the 
+first column of both data frames.  Since they are both in the column with the heading "V1", we don't have to 
+specify the column to use for merging.
+
+temp <- merge(activity_id_names, activity_data_test)
+
+Test_10.Remove the first column that's activity id
+activity_data_test <- temp[-1]
+
+Test_11.Change the column name from V2 to activityName
+colnames(activity_data_test)[1] <- "activityName"
+
+
+Now that we've processed both the training set and the test set separately,
+combine them to create a single data frame.
+activity_data_all <- rbind(activity_data_train, activity_data_test)
+
+
+Group the combined data frame by the activity name and subject ID.
+Produce an average of each variable for each activity and subject
+The results are written into the file with a prefix "combined_activity" and a suffix of ".txt".
+The file can be viewed with wordpad or read.table.
