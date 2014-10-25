@@ -3,7 +3,7 @@
 ### Accelerometer and gyroscope signals were captured on 3-axis.
 ### Each variable starting from column 3 contains the average of each
 ### measurement for a given activity and given subject.
-### For a variable name, a Camel case was used because using all low case
+### For a variable name, a Camel case was used because using all lower case
 ### for a long variable name makes it very difficult to read it.
 ### Moroever, in Java programs, using a Camel case is a standard.
 
