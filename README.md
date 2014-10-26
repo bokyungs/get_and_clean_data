@@ -27,6 +27,9 @@ The output file is a tidy set because it meets the following criteria:
   * Each row contains an observation of all variables.  
   * The file deals with a single dataset.  
 
+The output can be read in as follows:  
+    data <- read.table("./combined.activity.txt", header=TRUE)
+
 
 'variable_col_names.txt' - contains the column numbers of the measurements that we are interested in extracting. I put the info in a file so that we can edit the input file if we decide to add more data in the future.  For each column number, it contains the corresponding column names we are going to assign to the exracted variables(columns).  I went through the "features.txt" file and identified the column number of the mean and standard deviation we are interested in.
 I assigned the variable names in a Camel case because in software engineering, using all lower case for a long variable name is a big NO NO.
